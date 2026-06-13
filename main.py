@@ -1,179 +1,240 @@
 import streamlit as st
-import random
 
-# ─── 페이지 기본 설정 ──────────────────────────────────────────────────────────
+# ─── 페이지 설정 ───────────────────────────────────────────────────────────────
 st.set_page_config(
-    page_title="MBTI × Pokémon",
-    page_icon="⚡",
+    page_title="MBTI × LoL 챔피언",
+    page_icon="⚔️",
     layout="centered",
 )
 
-# ─── CSS 스타일링 ──────────────────────────────────────────────────────────────
+# ─── CSS ──────────────────────────────────────────────────────────────────────
 st.markdown("""
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;900&family=Press+Start+2P&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Noto+Sans+KR:wght@400;500;700&display=swap');
 
 html, body, [class*="css"] {
-    font-family: 'Nunito', sans-serif;
+    font-family: 'Noto Sans KR', sans-serif;
 }
 
 .stApp {
-    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 40%, #0f3460 100%);
+    background: linear-gradient(160deg, #0a0a14 0%, #0d1117 40%, #0a0f1e 70%, #110a0a 100%);
     min-height: 100vh;
 }
 
 /* 헤더 */
-.hero-title {
+.hero-wrap {
     text-align: center;
-    font-family: 'Press Start 2P', monospace;
-    font-size: 1.4rem;
-    color: #FFD700;
-    text-shadow: 0 0 20px #FFD700aa, 3px 3px 0px #e67e00;
-    line-height: 2;
-    padding: 1rem 0 0.5rem;
+    padding: 2.2rem 0 0.5rem;
+    position: relative;
+}
+.hero-eyebrow {
+    font-family: 'Cinzel', serif;
+    font-size: 0.7rem;
+    letter-spacing: 0.35em;
+    color: #C89B3C;
+    text-transform: uppercase;
+    margin-bottom: 0.6rem;
+}
+.hero-title {
+    font-family: 'Cinzel', serif;
+    font-size: clamp(1.6rem, 5vw, 2.6rem);
+    font-weight: 900;
+    line-height: 1.15;
+    background: linear-gradient(135deg, #C89B3C 0%, #F0E6BE 45%, #C89B3C 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-shadow: none;
+    margin-bottom: 0.4rem;
 }
 .hero-sub {
-    text-align: center;
-    color: #a0c4ff;
-    font-size: 1.05rem;
-    margin-bottom: 2rem;
-    letter-spacing: 0.03em;
+    color: #7a8fa6;
+    font-size: 0.95rem;
+    margin-bottom: 0.5rem;
+    letter-spacing: 0.02em;
+}
+
+/* 금빛 구분선 */
+.gold-line {
+    width: 120px;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, #C89B3C, transparent);
+    margin: 0.8rem auto 1.8rem;
 }
 
 /* 선택 박스 */
 div[data-baseweb="select"] > div {
-    background: rgba(255,255,255,0.07) !important;
-    border: 2px solid #FFD70066 !important;
-    border-radius: 14px !important;
-    color: #fff !important;
-    font-size: 1.15rem !important;
-    font-family: 'Nunito', sans-serif !important;
+    background: rgba(200,155,60,0.07) !important;
+    border: 1.5px solid #C89B3C55 !important;
+    border-radius: 10px !important;
+    color: #e8dfc8 !important;
+    font-size: 1.05rem !important;
+    font-family: 'Noto Sans KR', sans-serif !important;
+    transition: border-color 0.2s;
 }
-div[data-baseweb="select"] svg { color: #FFD700 !important; }
+div[data-baseweb="select"] > div:hover {
+    border-color: #C89B3Caa !important;
+}
+div[data-baseweb="select"] svg { color: #C89B3C !important; }
+div[data-baseweb="select"] li {
+    background: #0d1117 !important;
+    color: #e8dfc8 !important;
+}
+
+.stSelectbox label {
+    color: #C89B3C !important;
+    font-weight: 700 !important;
+    font-size: 0.88rem !important;
+    letter-spacing: 0.08em !important;
+    text-transform: uppercase !important;
+}
 
 /* 버튼 */
 .stButton > button {
     width: 100%;
-    background: linear-gradient(135deg, #FFD700, #FF8C00) !important;
-    color: #1a1a2e !important;
-    font-family: 'Press Start 2P', monospace !important;
-    font-size: 0.75rem !important;
-    font-weight: 900 !important;
+    background: linear-gradient(135deg, #7a5c1e 0%, #C89B3C 50%, #7a5c1e 100%) !important;
+    background-size: 200% !important;
+    color: #0a0a14 !important;
+    font-family: 'Cinzel', serif !important;
+    font-size: 0.85rem !important;
+    font-weight: 700 !important;
     border: none !important;
-    border-radius: 14px !important;
-    padding: 1rem 2rem !important;
-    letter-spacing: 0.05em !important;
-    box-shadow: 0 4px 20px #FFD70066 !important;
-    transition: transform 0.1s, box-shadow 0.1s !important;
+    border-radius: 10px !important;
+    padding: 0.85rem 2rem !important;
+    letter-spacing: 0.12em !important;
+    box-shadow: 0 4px 24px rgba(200,155,60,0.35) !important;
+    transition: all 0.2s !important;
     cursor: pointer !important;
 }
 .stButton > button:hover {
-    transform: translateY(-2px) !important;
-    box-shadow: 0 8px 30px #FFD700aa !important;
+    box-shadow: 0 6px 32px rgba(200,155,60,0.55) !important;
+    transform: translateY(-1px) !important;
 }
 .stButton > button:active {
     transform: translateY(1px) !important;
 }
 
 /* 결과 카드 */
-.result-card {
-    background: linear-gradient(135deg, rgba(255,215,0,0.12), rgba(255,140,0,0.08));
-    border: 2px solid #FFD70055;
-    border-radius: 24px;
-    padding: 2rem 2rem 1.5rem;
-    margin: 1.5rem 0;
-    box-shadow: 0 8px 40px rgba(255,215,0,0.15), inset 0 0 60px rgba(255,255,255,0.02);
+.result-wrap {
+    background: linear-gradient(160deg, rgba(200,155,60,0.08) 0%, rgba(10,10,20,0.95) 60%);
+    border: 1.5px solid #C89B3C44;
+    border-radius: 20px;
+    padding: 2rem 1.8rem 1.6rem;
+    margin: 1.8rem 0 1rem;
     position: relative;
     overflow: hidden;
+    box-shadow: 0 0 60px rgba(200,155,60,0.08), inset 0 0 40px rgba(200,155,60,0.03);
 }
-.result-card::before {
+.result-wrap::before {
     content: '';
     position: absolute;
-    top: -50%;
-    left: -50%;
-    width: 200%;
-    height: 200%;
-    background: radial-gradient(circle at 60% 40%, rgba(255,215,0,0.07) 0%, transparent 60%);
-    pointer-events: none;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, transparent, #C89B3C, transparent);
 }
+.corner {
+    position: absolute;
+    width: 18px; height: 18px;
+    border-color: #C89B3C88;
+    border-style: solid;
+}
+.corner-tl { top: 8px; left: 8px; border-width: 2px 0 0 2px; }
+.corner-tr { top: 8px; right: 8px; border-width: 2px 2px 0 0; }
+.corner-bl { bottom: 8px; left: 8px; border-width: 0 0 2px 2px; }
+.corner-br { bottom: 8px; right: 8px; border-width: 0 2px 2px 0; }
 
-.pokemon-name {
-    font-family: 'Press Start 2P', monospace;
-    font-size: 1.2rem;
-    color: #FFD700;
-    text-shadow: 2px 2px 0 #e67e00;
-    margin: 0.5rem 0;
-}
-.pokemon-emoji {
-    font-size: 5rem;
-    display: block;
-    text-align: center;
-    filter: drop-shadow(0 4px 16px rgba(255,215,0,0.5));
-    animation: float 3s ease-in-out infinite;
-}
-@keyframes float {
-    0%, 100% { transform: translateY(0px); }
-    50% { transform: translateY(-10px); }
-}
+.champ-icon { font-size: 5.5rem; display:block; text-align:center; animation: floatY 4s ease-in-out infinite; }
+@keyframes floatY { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
 
-.type-badge {
+.mbti-pill {
     display: inline-block;
-    padding: 0.25rem 0.9rem;
+    border: 1px solid #C89B3Caa;
+    color: #C89B3C;
+    font-family: 'Cinzel', serif;
+    font-size: 0.65rem;
+    padding: 0.25rem 1rem;
     border-radius: 999px;
+    letter-spacing: 0.2em;
+    margin-bottom: 0.7rem;
+}
+.champ-name {
+    font-family: 'Cinzel', serif;
+    font-size: 1.7rem;
+    font-weight: 900;
+    background: linear-gradient(135deg, #C89B3C, #F0E6BE, #C89B3C);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin: 0.1rem 0 0.1rem;
+}
+.champ-title {
+    color: #7a8fa6;
+    font-size: 0.85rem;
+    letter-spacing: 0.08em;
+    margin-bottom: 1rem;
+}
+
+/* 역할 뱃지 */
+.role-badge {
+    display: inline-block;
+    padding: 0.28rem 0.85rem;
+    border-radius: 6px;
     font-size: 0.78rem;
     font-weight: 700;
-    margin: 0.2rem;
+    margin: 0.2rem 0.15rem;
     letter-spacing: 0.04em;
+    border: 1px solid;
 }
-.section-label {
-    font-family: 'Press Start 2P', monospace;
-    font-size: 0.6rem;
-    color: #FFD700aa;
-    letter-spacing: 0.15em;
+
+.section-eyebrow {
+    font-family: 'Cinzel', serif;
+    font-size: 0.58rem;
+    letter-spacing: 0.25em;
+    color: #C89B3Caa;
     text-transform: uppercase;
-    margin: 1.2rem 0 0.4rem;
+    margin: 1.4rem 0 0.5rem;
 }
-.desc-text {
-    color: #d4e8ff;
-    font-size: 1.0rem;
-    line-height: 1.7;
+.desc-body {
+    color: #b8c8d8;
+    font-size: 0.97rem;
+    line-height: 1.8;
 }
 .trait-chip {
     display: inline-block;
-    background: rgba(160,196,255,0.15);
-    border: 1px solid rgba(160,196,255,0.3);
-    color: #a0c4ff;
-    border-radius: 8px;
-    padding: 0.3rem 0.75rem;
-    font-size: 0.85rem;
-    margin: 0.2rem;
+    background: rgba(200,155,60,0.1);
+    border: 1px solid rgba(200,155,60,0.3);
+    color: #C89B3C;
+    border-radius: 6px;
+    padding: 0.28rem 0.75rem;
+    font-size: 0.82rem;
+    margin: 0.2rem 0.15rem;
     font-weight: 600;
 }
-.compat-card {
-    background: rgba(255,255,255,0.05);
-    border-radius: 14px;
+.compat-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    background: rgba(255,255,255,0.03);
+    border-radius: 10px;
     padding: 0.8rem 1rem;
     margin: 0.4rem 0;
     border-left: 3px solid;
+    font-size: 0.9rem;
+    color: #b8c8d8;
+    line-height: 1.6;
+}
+.quote-block {
+    text-align: center;
+    color: #C89B3Ccc;
+    font-family: 'Cinzel', serif;
     font-size: 0.92rem;
-    color: #d4e8ff;
+    font-style: italic;
+    line-height: 1.9;
+    padding: 0.5rem 0 0.8rem;
+    letter-spacing: 0.02em;
 }
+.sep { border:none; border-top:1px solid rgba(200,155,60,0.15); margin:1rem 0; }
 
-/* 구분선 */
-.divider {
-    border: none;
-    border-top: 1px solid rgba(255,215,0,0.2);
-    margin: 1rem 0;
-}
-
-/* selectbox label */
-.stSelectbox label {
-    color: #a0c4ff !important;
-    font-weight: 700 !important;
-    font-size: 0.95rem !important;
-}
-
-/* 숨기기 */
 #MainMenu, footer, header { visibility: hidden; }
 </style>
 """, unsafe_allow_html=True)
@@ -181,278 +242,295 @@ div[data-baseweb="select"] svg { color: #FFD700 !important; }
 # ─── 데이터 ────────────────────────────────────────────────────────────────────
 MBTI_DATA = {
     "INTJ": {
-        "pokemon": "뮤츠",
-        "emoji": "🔮",
-        "types": [("사이킥", "#7C5CBF", "#fff"), ("냉혹", "#2c3e50", "#ecf0f1")],
-        "nickname": "전략가 포켓몬",
+        "champion": "제드",
+        "title": "그림자의 주인",
+        "icon": "🥷",
+        "roles": [("암살자", "#1a1a2e", "#e74c3c", "#e74c3c"), ("닌자", "#1a1a2e", "#7f8c8d", "#7f8c8d")],
+        "lane": "미드 / 정글",
         "personality": (
-            "혼자 조용한 곳에서 책을 읽다가 "
-            "갑자기 세상을 바꿀 계획을 세우는 타입이에요. "
-            "겉으론 차갑지만 자기 세계관이 확고하고, "
-            "한번 목표를 정하면 누구도 못 말려요 🌑"
+            "처음부터 끝까지 혼자서 계획하고, 혼자서 실행하고, 혼자서 이기는 타입이에요. "
+            "팀원이 '우리 같이 가요'라고 해도 이미 반대쪽 정글을 청소하고 있어요 🌑 "
+            "감정보다 효율, 공감보다 전략. 적이 뭘 할지 두 수 앞을 읽고 플레이해요. "
+            "하지만 게임 오래 하면 챔피언처럼 '나는 적이 없다, 그림자만 있을 뿐' 하는 거 아닌지 걱정됩니다."
         ),
-        "traits": ["독립적", "직관적", "완벽주의", "통찰력", "냉철함"],
-        "best": ("ENTP", "💡 아이디어 폭격으로 자극을 줘요"),
-        "worst": ("ESFP", "⚡ 에너지 방향이 완전 반대"),
-        "quote": "\"나는 인간이 만든 것이 아니다. 나는 내가 만들어낸 존재다.\"",
+        "traits": ["전략가", "완벽주의", "독립적", "냉철함", "통찰력"],
+        "best": ("ENTP", "💡 아이디어로 판을 흔들어줘서 시너지 폭발"),
+        "worst": ("ESFP", "🎉 진지한 전략 vs 즉흥 한타... 서로 답답해요"),
+        "playstyle": "📌 솔로 캐리형 — 맵 리딩으로 혼자 게임 터뜨리는 스타일",
+        "quote": "\"그림자는 빛이 없어도 존재한다.\"",
     },
     "INTP": {
-        "pokemon": "폴리곤Z",
-        "emoji": "🖥️",
-        "types": [("노말", "#A8A878", "#fff"), ("분석형", "#2980b9", "#fff")],
-        "nickname": "탐구자 포켓몬",
+        "champion": "리산드라",
+        "title": "빙설의 마녀",
+        "icon": "❄️",
+        "roles": [("메이지", "#1a1a2e", "#3498db", "#3498db"), ("CC기", "#1a1a2e", "#9b59b6", "#9b59b6")],
+        "lane": "미드",
         "personality": (
-            "잠도 못 자고 새벽 3시에 '왜 하늘은 파랄까' 를 검색하는 타입 🌌 "
-            "관심 없는 건 눈에 안 보이지만, "
-            "흥미가 생기면 전문가보다 더 깊이 파고들어요. "
-            "논리 오류에 매우 예민합니다."
+            "이론은 완벽하게 세워져 있는데 실전 가면 '어... 잠깐만' 하는 타입 🤔 "
+            "패치 노트 분석하는 시간이 실제 게임 시간보다 길고, "
+            "챔피언 풀이 왜 저게 최선인지 20분 동안 설명할 수 있어요. "
+            "감정 기복 없이 냉정하게 리뷰하지만, 본인 실수는 '변수였어'로 처리합니다 🧊"
         ),
-        "traits": ["논리적", "창의적", "호기심 왕", "집중력", "유연한사고"],
-        "best": ("ENTJ", "🏆 목표를 구체화해줘서 시너지 폭발"),
-        "worst": ("ESTJ", "📋 규칙과 자유 사이의 충돌"),
-        "quote": "\"모든 것은 데이터다. 감정도 패턴일 뿐.\"",
+        "traits": ["분석적", "논리적", "호기심", "객관적", "이론파"],
+        "best": ("ENTJ", "🏆 이론에 추진력을 더해주면 무적"),
+        "worst": ("ESTJ", "📋 내 방식대로 하게 놔줘요, 제발"),
+        "playstyle": "📌 계산 플레이형 — CC연계와 포지셔닝으로 싸우는 스타일",
+        "quote": "\"차가움이란 감정의 부재가 아니라, 완전한 통제다.\"",
     },
     "ENTJ": {
-        "pokemon": "루카리오",
-        "emoji": "🥊",
-        "types": [("격투", "#C03028", "#fff"), ("강철", "#B8B8D0", "#333")],
-        "nickname": "지휘관 포켓몬",
+        "champion": "다리우스",
+        "title": "녹서스의 손",
+        "icon": "⚔️",
+        "roles": [("파이터", "#1a1a2e", "#e67e22", "#e67e22"), ("탱커", "#1a1a2e", "#95a5a6", "#95a5a6")],
+        "lane": "탑",
         "personality": (
-            "팀프로젝트에서 자동으로 리더가 되는 타입이에요 👑 "
-            "비효율을 참지 못하고, 항상 '더 잘할 수 있어' 를 외쳐요. "
-            "카리스마는 있지만 가끔 너무 앞서가서 주변이 못 따라가기도 해요."
+            "팀원들이 뭉개고 있으면 혼자서 텔포 타고 가서 적 탑을 갈아버리는 타입 👑 "
+            "리더십이 자동으로 발동되고, 비효율적인 플레이를 보면 즉시 핑 열 개. "
+            "이기는 방법을 정확히 알고 있고, 그대로 실행해요. "
+            "그래서 팀원들이 따라오면 무조건 이기고... 안 따라오면 혼자라도 이겨요 💪"
         ),
-        "traits": ["리더십", "결단력", "카리스마", "효율추구", "목표지향"],
-        "best": ("INTP", "🧠 분석력으로 완벽한 팀워크"),
-        "worst": ("ISFP", "🌸 페이스가 너무 달라요"),
-        "quote": "\"약점은 고치는 것이 아니라 전략으로 보완한다.\"",
+        "traits": ["리더십", "결단력", "추진력", "카리스마", "목표지향"],
+        "best": ("INTP", "🧠 분석력과 결합하면 최강 조합"),
+        "worst": ("ISFP", "🌸 왜 저렇게 느릿느릿 하는 거야..."),
+        "playstyle": "📌 압박 점령형 — 사이드 운영으로 게임 흐름을 지배하는 스타일",
+        "quote": "\"패배는 선택이다. 나는 선택하지 않겠다.\"",
     },
     "ENTP": {
-        "pokemon": "게코가",
-        "emoji": "🦎",
-        "types": [("물", "#6890F0", "#fff"), ("재치", "#F8D030", "#333")],
-        "nickname": "발명가 포켓몬",
+        "champion": "야스오",
+        "title": "용서받지 못한 자",
+        "icon": "🌪️",
+        "roles": [("파이터", "#1a1a2e", "#e67e22", "#e67e22"), ("메이지", "#1a1a2e", "#3498db", "#3498db")],
+        "lane": "미드 / 바텀",
         "personality": (
-            "토론을 게임처럼 즐기고 반대 의견도 재미로 내는 타입 🎲 "
-            "아이디어가 넘쳐나지만 실행은… 음. "
-            "지루한 건 못 참고 항상 새로운 자극을 찾아다녀요. "
-            "대화 상대 중 제일 재미있는 사람이에요."
+            "다 풀리면 딜은 진짜 무시무시하지만 그 전까진 죽는 걸 즐기는 타입 🌀 "
+            "'야스오 원트릭이에요' 하는 순간 팀원들 숨 막히는 거 알면서도 꺼내요. "
+            "도전 자체를 게임으로 생각하고, 불리한 상황에서 오히려 집중력이 올라가요. "
+            "이기면 천재, 지면 '팀이 안 따라와서'... 그래도 같이 하면 재밌어요 😏"
         ),
-        "traits": ["창의적", "논쟁 즐김", "임기응변", "호기심", "에너자이저"],
-        "best": ("INTJ", "⚔️ 아이디어를 현실로 만드는 콤비"),
-        "worst": ("ISFJ", "🏡 안정 vs 변화 충돌"),
-        "quote": "\"규칙은 깨지려고 있는 거야. 나는 새 규칙을 만들거든.\"",
+        "traits": ["창의적", "도전적", "임기응변", "자신감", "재치"],
+        "best": ("INTJ", "⚔️ 미친 플레이를 받쳐줄 전략가"),
+        "worst": ("ISFJ", "😮‍💨 내 플레이 스타일을 이해해줘요..."),
+        "playstyle": "📌 하이리스크 하이리턴형 — 아슬아슬한 한타가 진짜 재미",
+        "quote": "\"바람은 용서하지 않는다.\"",
     },
     "INFJ": {
-        "pokemon": "루gia",
-        "emoji": "🌊",
-        "types": [("비행", "#A890F0", "#fff"), ("사이킥", "#7C5CBF", "#fff")],
-        "nickname": "예언자 포켓몬",
+        "champion": "소라카",
+        "title": "별의 아이",
+        "icon": "⭐",
+        "roles": [("서포터", "#1a1a2e", "#2ecc71", "#2ecc71"), ("힐러", "#1a1a2e", "#f1c40f", "#f1c40f")],
+        "lane": "바텀 (서포터)",
         "personality": (
-            "조용하지만 사람 마음을 꿰뚫어 보는 타입이에요 🔭 "
-            "말이 없어 보여도 속에는 거대한 이상향이 있어요. "
-            "공감 능력이 너무 강해서 가끔 지치기도 해요. "
-            "세상에서 가장 희귀한 MBTI!"
+            "자기 HP 깎아서 팀원 살리고 정작 본인이 죽는 타입이에요 🌟 "
+            "팀원의 체력창을 항상 주시하고, 위기가 오기 전에 이미 예측하고 있어요. "
+            "사람들의 감정을 너무 깊이 느껴서 팀원이 져도 내가 더 미안해요. "
+            "세상에서 가장 희귀하고 소중한 포지션입니다. (실제로 서포터 구인 어렵잖아요 😭)"
         ),
-        "traits": ["공감력", "통찰", "이상주의", "신중함", "깊은 생각"],
-        "best": ("ENFP", "✨ 열정과 깊이의 황금 조합"),
-        "worst": ("ESTP", "🌪️ 깊이 vs 즉흥의 충돌"),
-        "quote": "\"나는 세상이 어때야 하는지 알고 있다.\"",
+        "traits": ["공감력", "헌신적", "통찰", "이타심", "예지력"],
+        "best": ("ENFP", "✨ 무한 긍정 에너지가 나를 살려줘요"),
+        "worst": ("ESTP", "💥 제발 들이받기 전에 한 번만 생각해요"),
+        "playstyle": "📌 팀 뒷받침형 — 팀원을 살리는 것이 곧 캐리",
+        "quote": "\"별빛은 어둠 속에서만 보인다.\"",
     },
     "INFP": {
-        "pokemon": "이브이",
-        "emoji": "🦊",
-        "types": [("노말", "#A8A878", "#fff"), ("감성", "#FFB7C5", "#333")],
-        "nickname": "몽상가 포켓몬",
+        "champion": "룰루",
+        "title": "요정의 마법사",
+        "icon": "🧚",
+        "roles": [("서포터", "#1a1a2e", "#2ecc71", "#2ecc71"), ("요정", "#1a1a2e", "#EE99AC", "#c0392b")],
+        "lane": "바텀 (서포터) / 미드",
         "personality": (
-            "혼자서 머릿속에 소설 열 편을 쓰고 있는 타입 📖 "
-            "겉으론 조용해 보이지만 내면 세계는 우주보다 넓어요. "
-            "가치관이 맞으면 엄청난 열정을 보여주지만, "
-            "억지로 뭔가 하라고 하면 바로 에너지가 0이 됩니다."
+            "팀원을 다람쥐로 만들면서 '이게 최선이었어요'라고 하는 타입 🐿️ "
+            "세상을 본인만의 독특한 시각으로 바라보고, "
+            "뭔가 가치 있는 일을 하고 싶어서 서포터를 골랐어요. "
+            "마음이 여려서 팀원이 화내면 살짝 상처받지만, "
+            "머릿속에 이미 다음 판에서 이길 시나리오가 완성돼 있어요 📖"
         ),
-        "traits": ["감수성", "창의적", "진정성", "이상주의", "공감왕"],
-        "best": ("ENFJ", "💞 진심으로 이해해주는 최고 짝꿍"),
-        "worst": ("ESTJ", "📊 현실 vs 이상의 충돌"),
-        "quote": "\"나는 세상에 맞추기보다 세상을 바꾸고 싶다.\"",
+        "traits": ["감수성", "창의적", "이상주의", "진정성", "공감왕"],
+        "best": ("ENFJ", "💞 내 진심을 알아주는 유일한 사람"),
+        "worst": ("ESTJ", "📊 왜 모든 걸 수치로 따지는 거예요..."),
+        "playstyle": "📌 유틸 마법형 — 독특한 CC기로 팀원을 보호하는 스타일",
+        "quote": "\"상상력은 가장 강력한 마법이야.\"",
     },
     "ENFJ": {
-        "pokemon": "피카츄",
-        "emoji": "⚡",
-        "types": [("전기", "#F8D030", "#333"), ("카리스마", "#E74C3C", "#fff")],
-        "nickname": "주인공 포켓몬",
+        "champion": "레나타 글라스크",
+        "title": "바이렌트의 철의 손",
+        "icon": "💼",
+        "roles": [("서포터", "#1a1a2e", "#2ecc71", "#2ecc71"), ("전략가", "#1a1a2e", "#8e44ad", "#8e44ad")],
+        "lane": "바텀 (서포터)",
         "personality": (
-            "모든 사람의 감정을 케어하느라 자기가 지쳐있는 타입 💛 "
-            "선생님, 리더, 친구 역할을 동시에 해내요. "
-            "사람들에게 영감을 주는 재능이 있어요. "
-            "그리고 당연히 모두에게 사랑받습니다!"
+            "팀원 모두를 챙기면서 은근히 게임 판도를 본인이 쥐고 흔드는 타입 💛 "
+            "'우리 다 같이 할 수 있어!' 라고 말하면서 사실 혼자 다 계획해놨어요. "
+            "팀원의 성장을 진심으로 응원하고, "
+            "게임에서 지더라도 '우리 다음 판엔 더 잘할 수 있어!'라고 말해요 (그리고 진심이에요) 🌟"
         ),
         "traits": ["따뜻함", "리더십", "공감력", "영감 제공", "소통 달인"],
-        "best": ("INFP", "💫 서로의 감수성을 꽃피워줘요"),
-        "worst": ("ISTP", "🔧 감정 vs 논리 간극"),
-        "quote": "\"당신이 성장하는 걸 보는 게 내 기쁨이에요.\"",
+        "best": ("INFP", "💫 감수성의 시너지로 팀 분위기 최고"),
+        "worst": ("ISTP", "🔧 공감 제로인 반응에 살짝 상처받아요"),
+        "playstyle": "📌 팀 총괄형 — 한타 판도를 바꾸는 한 방의 마스터",
+        "quote": "\"당신의 성공이 곧 나의 성공입니다.\"",
     },
     "ENFP": {
-        "pokemon": "마릴리",
-        "emoji": "🎪",
-        "types": [("물", "#6890F0", "#fff"), ("요정", "#EE99AC", "#fff")],
-        "nickname": "활동가 포켓몬",
+        "champion": "세라핀",
+        "title": "별빛 연주자",
+        "icon": "🎵",
+        "roles": [("서포터", "#1a1a2e", "#2ecc71", "#2ecc71"), ("메이지", "#1a1a2e", "#3498db", "#3498db")],
+        "lane": "바텀 (서포터) / 미드",
         "personality": (
-            "5분 전에 만난 사람과 절친이 되는 타입이에요 🎉 "
-            "세상 모든 것에 가능성을 보고, 항상 설레요. "
-            "계획을 세워도 더 재밌는 게 생기면 바로 갈아타고... "
-            "그래도 결국엔 잘 됩니다. 왜냐면 운이 좋거든요 🍀"
+            "게임 시작 전 '같이 즐겁게 해요!!' 하고 게임 끝나도 '수고했어요 💕' 하는 타입 🎉 "
+            "적팀한테도 칭찬하는 따뜻한 사람이고, "
+            "열정이 넘쳐서 판마다 다른 챔피언 해보고 싶은 충동이 있어요. "
+            "좀 산만해 보여도 결정적인 순간엔 팀을 살리는 한 방이 있어요!"
         ),
-        "traits": ["사교적", "열정적", "자유로움", "낙천적", "상상력"],
-        "best": ("INTJ", "🌟 꿈에 전략을 더해줘요"),
-        "worst": ("ISTJ", "📅 자유 vs 규칙 충돌"),
-        "quote": "\"가능성은 무한해! 일단 해보자고!\"",
+        "traits": ["열정적", "사교적", "낙천적", "자유로움", "상상력"],
+        "best": ("INTJ", "🌟 내 꿈에 전략을 더해줘요"),
+        "worst": ("ISTJ", "📅 왜 그렇게 정해진 대로만 해요?"),
+        "playstyle": "📌 무드메이커형 — 팀 전체를 살리는 광역 버프의 여왕",
+        "quote": "\"음악은 세상을 하나로 연결해!\"",
     },
     "ISTJ": {
-        "pokemon": "강철톤",
-        "emoji": "🛡️",
-        "types": [("강철", "#B8B8D0", "#333"), ("바위", "#B8A038", "#fff")],
-        "nickname": "수호자 포켓몬",
+        "champion": "말파이트",
+        "title": "암석의 파편",
+        "icon": "🪨",
+        "roles": [("탱커", "#1a1a2e", "#95a5a6", "#95a5a6"), ("개시기", "#1a1a2e", "#e67e22", "#e67e22")],
+        "lane": "탑",
         "personality": (
-            "약속 시간 10분 전에 도착하고 항상 준비돼 있는 타입 ⏰ "
-            "규칙과 절차를 중요하게 생각하고, "
-            "맡은 일은 끝까지 완수해요. "
-            "신뢰도 99999%의 든든한 존재예요."
+            "매 판 같은 빌드, 같은 룬, 같은 플레이... 그리고 항상 이기는 타입 ⏰ "
+            "신뢰도가 엄청나고, 약속한 한타 개시는 100% 실행해요. "
+            "'말파이트 궁 하나에 게임 끝낸다' 라는 공식을 믿고, 믿게 만들어요. "
+            "변수를 싫어하고 예측 가능한 플레이를 선호해요. 근데 그게 왜 이겨요... 👍"
         ),
         "traits": ["책임감", "신뢰성", "꼼꼼함", "체계적", "의리"],
-        "best": ("ESFP", "🎊 완벽한 균형의 안정감"),
-        "worst": ("ENFP", "🎪 체계 vs 즉흥의 충돌"),
-        "quote": "\"한 번 약속하면 반드시 지킨다.\"",
+        "best": ("ESFP", "🎊 활발함이 나를 즐겁게 해줘요"),
+        "worst": ("ENFP", "🎪 변수가 너무 많아서 머리 아파요"),
+        "playstyle": "📌 한타 개시형 — 궁 하나로 게임 끝내는 믿음의 탱커",
+        "quote": "\"나는 천천히, 그러나 반드시 부순다.\"",
     },
     "ISFJ": {
-        "pokemon": "푸린",
-        "emoji": "🎀",
-        "types": [("노말", "#A8A878", "#fff"), ("요정", "#EE99AC", "#fff")],
-        "nickname": "수호천사 포켓몬",
+        "champion": "타릭",
+        "title": "별빛의 방패",
+        "icon": "🛡️",
+        "roles": [("서포터", "#1a1a2e", "#2ecc71", "#2ecc71"), ("탱커", "#1a1a2e", "#95a5a6", "#95a5a6")],
+        "lane": "바텀 (서포터)",
         "personality": (
-            "남의 생일은 다 기억하는데 자기 생일은 그냥 넘기는 타입 🎂 "
-            "배려심이 어마어마하고, 주변 사람들을 조용히 챙겨요. "
-            "갈등을 싫어해서 참고 참다가 한 번씩 폭발하기도 해요... "
-            "제발 자기 자신도 좀 챙기세요 🥺"
+            "원딜이 무빙을 안 해도 내 몸으로 막아주는 타입 💙 "
+            "배려가 몸에 배어 있고, 팀원이 위험하면 자동으로 달려가요. "
+            "자기 표현은 서툴러도 행동으로 다 보여줘요. "
+            "근데 가끔 참고 참다가 '아 진짜 왜 저기서 들어가요!!' 하는 거 다 이해해요 🫡"
         ),
-        "traits": ["배려심", "충성스러움", "섬세함", "인내력", "따뜻함"],
-        "best": ("ESFP", "🌺 활기차게 이끌어줘요"),
-        "worst": ("ENTP", "💥 평화 vs 도발 충돌"),
-        "quote": "\"당신이 행복하면 나도 행복해요.\"",
+        "traits": ["배려심", "충성스러움", "인내력", "섬세함", "따뜻함"],
+        "best": ("ESFP", "🌺 활기가 나를 살려줘요"),
+        "worst": ("ENTP", "😤 왜 매번 어그로를 끌어요..."),
+        "playstyle": "📌 수호자형 — 원딜을 목숨 걸고 지키는 철벽 서포터",
+        "quote": "\"진정한 아름다움은 희생 속에 있다.\"",
     },
     "ESTJ": {
-        "pokemon": "거북왕",
-        "emoji": "🐢",
-        "types": [("물", "#6890F0", "#fff"), ("얼음", "#98D8D8", "#333")],
-        "nickname": "관리자 포켓몬",
+        "champion": "갱플랭크",
+        "title": "새벽빛 해적왕",
+        "icon": "🏴‍☠️",
+        "roles": [("파이터", "#1a1a2e", "#e67e22", "#e67e22"), ("전략가", "#1a1a2e", "#8e44ad", "#8e44ad")],
+        "lane": "탑",
         "personality": (
-            "엑셀로 인생 계획을 짜고 그대로 실행하는 타입 📊 "
-            "공정함과 질서를 중요하게 생각해요. "
-            "책임지는 걸 두려워하지 않고 오히려 좋아해요. "
-            "비효율적인 상황을 보면 자동으로 개선안이 떠올라요."
+            "맵 전체에 barrel 깔아두고 엑셀처럼 관리하는 타입 📊 "
+            "골드 효율, 쿨타임, 맵 컨트롤을 동시에 계산해요. "
+            "체계가 없는 팀원을 보면 핑 열두 개 찍고 싶지만 참아요 (가끔은 못 참아요). "
+            "후반으로 갈수록 강해지는 챔피언처럼, 계획대로 흘러가면 무적이에요 ⚓"
         ),
-        "traits": ["조직력", "결단력", "공정함", "실용적", "추진력"],
-        "best": ("ISFP", "🎨 부드러움이 균형을 맞춰줘요"),
-        "worst": ("INFP", "🌈 현실 vs 이상의 충돌"),
-        "quote": "\"계획이 없으면 실패를 계획하는 것이다.\"",
+        "traits": ["조직력", "공정함", "결단력", "실용적", "추진력"],
+        "best": ("ISFP", "🎨 부드러운 균형이 나를 편하게 해줘요"),
+        "worst": ("INFP", "🌈 현실을 좀 봐요, 이상만으론 이길 수 없어요"),
+        "playstyle": "📌 파밍 운영형 — 후반 스케일로 게임을 압도하는 스타일",
+        "quote": "\"바다의 법칙은 강자가 만든다.\"",
     },
     "ESFJ": {
-        "pokemon": "냐오화",
-        "emoji": "🌸",
-        "types": [("불꽃", "#F08030", "#fff"), ("노말", "#A8A878", "#fff")],
-        "nickname": "집사 포켓몬",
+        "champion": "나미",
+        "title": "조류의 지휘자",
+        "icon": "🌊",
+        "roles": [("서포터", "#1a1a2e", "#2ecc71", "#2ecc71"), ("인챈터", "#1a1a2e", "#3498db", "#3498db")],
+        "lane": "바텀 (서포터)",
         "personality": (
-            "모임에 간식 챙겨오고 자리 배치까지 신경 쓰는 타입 🍱 "
-            "사람들의 기분을 항상 읽고, 분위기 메이커예요. "
-            "인정받고 싶은 마음이 크고, 사람들에게 잘 보이고 싶어해요. "
-            "진짜 따뜻한 사람입니다 ☀️"
+            "챗에서 제일 먼저 '안녕하세요!' 치고 게임 내내 팀원 챙기는 타입 ☀️ "
+            "원딜 체력 낮으면 본능적으로 힐이 나가고, 시야도 열심히 해줘요. "
+            "팀원이 칭찬해주면 더 잘하고, "
+            "욕 들으면 실력이 흔들리는 섬세한 마음의 소유자예요. "
+            "진심으로 팀을 위하는 사람입니다 💙"
         ),
-        "traits": ["사교적", "배려심", "따뜻함", "현실적", "조화 추구"],
-        "best": ("ISFJ", "🤝 서로를 완벽하게 이해해요"),
-        "worst": ("INTP", "🤔 감성 vs 논리의 벽"),
-        "quote": "\"모두가 웃는 걸 볼 때 나도 제일 행복해요.\"",
+        "traits": ["사교적", "따뜻함", "배려심", "현실적", "조화 추구"],
+        "best": ("ISFJ", "🤝 서로를 완벽하게 이해하는 조합"),
+        "worst": ("INTP", "🤔 논리로만 대화하면 조금 외로워요"),
+        "playstyle": "📌 팀 케어형 — 버프와 힐로 원딜을 신으로 만드는 서포터",
+        "quote": "\"파도는 함께 출렁일 때 가장 강하다.\"",
     },
     "ISTP": {
-        "pokemon": "리자드",
-        "emoji": "🔥",
-        "types": [("불꽃", "#F08030", "#fff"), ("독립", "#7B68EE", "#fff")],
-        "nickname": "장인 포켓몬",
+        "champion": "카이사",
+        "title": "공허의 딸",
+        "icon": "🚀",
+        "roles": [("원거리 딜러", "#1a1a2e", "#e74c3c", "#e74c3c"), ("암살자", "#1a1a2e", "#1a1a2e", "#9b59b6")],
+        "lane": "바텀 (원딜)",
         "personality": (
-            "설명서를 안 읽어도 다 고칠 수 있는 타입이에요 🔧 "
-            "말보다 행동으로 보여주고, 혼자 있는 시간을 사랑해요. "
-            "위기 상황에서 냉정하게 대처하는 능력 탑클래스. "
-            "감정 표현이 서툴러도 진심은 행동으로 나타나요."
+            "설명 없이 그냥 잘 함. 그게 다임. 🔧 "
+            "화려한 플레이는 없지만 cs 하나도 안 놓치고 적 잡을 때 타이밍이 완벽해요. "
+            "팀원이 '왜 거기 있었어요?'라고 물으면 '그냥요'라고 대답해요. "
+            "감정 기복 없이 꾸준히, 적이 뭘 하든 내 할 것만 해요. 실력파입니다 💯"
         ),
         "traits": ["독립적", "냉철함", "실용적", "집중력", "문제해결"],
-        "best": ("ESTJ", "⚙️ 실행력의 완벽한 결합"),
-        "worst": ("ENFJ", "💬 침묵 vs 대화 충돌"),
-        "quote": "\"말하는 시간에 직접 고치는 게 빠르다.\"",
+        "best": ("ESTJ", "⚙️ 실행력이 합쳐지면 최강"),
+        "worst": ("ENFJ", "💬 저 사실 대화 많이 안 해도 돼요"),
+        "playstyle": "📌 솔로 사냥형 — 진입기로 낙오된 적을 혼자 처리하는 스타일",
+        "quote": "\"공허가 나를 바꿨지만, 내 의지는 바꾸지 못했다.\"",
     },
     "ISFP": {
-        "pokemon": "이상해꽃",
-        "emoji": "🌺",
-        "types": [("풀", "#78C850", "#fff"), ("독", "#A040A0", "#fff")],
-        "nickname": "예술가 포켓몬",
+        "champion": "릴리아",
+        "title": "주눅든 새싹",
+        "icon": "🌸",
+        "roles": [("정글러", "#1a1a2e", "#27ae60", "#27ae60"), ("메이지", "#1a1a2e", "#3498db", "#3498db")],
+        "lane": "정글",
         "personality": (
-            "카페에서 혼자 그림 그리거나 음악 듣는 걸 좋아하는 타입 🎨 "
-            "감각이 예민하고 아름다운 것에 반응해요. "
-            "자기 속도로 살아가는 걸 중요하게 생각하고, "
-            "강요받는 걸 아주 싫어해요. 자유로운 영혼입니다 🕊️"
+            "캠프에서 혼자 꽃을 키우다가 갑자기 나타나서 잠 재우는 타입 🌺 "
+            "자기만의 템포가 있고, 강요받는 걸 정말 싫어해요. "
+            "혼자 있는 시간(정글링)을 사랑하고, 팀원이 뭐라 해도 내 방식대로 해요. "
+            "진짜 잘 풀리면 적팀 전체가 꿈나라 가는 거... 보고 싶지 않으세요? 🎨"
         ),
-        "traits": ["감수성", "예술적", "자유로움", "온화함", "관찰력"],
-        "best": ("ESFJ", "🌻 활발함이 꽃을 피워줘요"),
-        "worst": ("ENTJ", "⚡ 압박 vs 자유 충돌"),
-        "quote": "\"아름다운 순간들이 모여 인생이 된다.\"",
+        "traits": ["감수성", "자유로움", "예술적", "온화함", "관찰력"],
+        "best": ("ESFJ", "🌻 따뜻하게 이끌어줘요"),
+        "worst": ("ENTJ", "⚡ 제발 핑 그만 찍어요, 알아서 해요"),
+        "playstyle": "📌 독자 운영형 — 내 템포로 정글 돌며 한 방에 게임 터뜨리기",
+        "quote": "\"꽃은 서두르지 않아도 피어난다.\"",
     },
     "ESTP": {
-        "pokemon": "모부기",
-        "emoji": "🚀",
-        "types": [("물", "#6890F0", "#fff"), ("땅", "#E0C068", "#333")],
-        "nickname": "사업가 포켓몬",
+        "champion": "바이",
+        "title": "필트오버의 집행자",
+        "icon": "🥊",
+        "roles": [("파이터", "#1a1a2e", "#e67e22", "#e67e22"), ("정글러", "#1a1a2e", "#27ae60", "#27ae60")],
+        "lane": "정글 / 탑",
         "personality": (
-            "지루한 걸 못 참고 항상 액션이 있어야 하는 타입 💥 "
-            "사교성이 폭발적이고, 순발력이 최고예요. "
-            "계획보다 즉흥이 더 잘 맞고, "
-            "위험한 도전도 두근거림으로 받아들여요. 진짜 살아있는 느낌!"
+            "생각보다 주먹이 먼저 나가는 타입이에요 💥 "
+            "'일단 들어가고 생각은 나중에' 가 인생 모토예요. "
+            "순발력이 어마어마하고, 위기 상황에서 오히려 더 흥분해요. "
+            "이기면 '내가 다 했어!', 지면 '한타만 잘 했으면 됐는데!' 어느 쪽이든 재미있는 사람 🎲"
         ),
-        "traits": ["행동파", "사교적", "현실적", "대담함", "순발력"],
-        "best": ("ISFJ", "🏠 든든한 안전망이 돼줘요"),
-        "worst": ("INFJ", "🌙 현재 vs 미래 충돌"),
-        "quote": "\"생각보다 먼저 움직여라!\"",
+        "traits": ["행동파", "대담함", "순발력", "사교적", "현실적"],
+        "best": ("ISFJ", "🏠 든든한 안전망이 되어줘요"),
+        "worst": ("INFJ", "🌙 너무 깊게 생각하면 타이밍 놓쳐요"),
+        "playstyle": "📌 돌격 개시형 — 먼저 들어가서 싸움 판 만들고 팀 따라오기",
+        "quote": "\"말은 필요 없어. 주먹으로 보여주지.\"",
     },
     "ESFP": {
-        "pokemon": "잠만보",
-        "emoji": "💫",
-        "types": [("노말", "#A8A878", "#fff"), ("물", "#6890F0", "#fff")],
-        "nickname": "연예인 포켓몬",
+        "champion": "케이틀린",
+        "title": "필트오버의 보안관",
+        "icon": "🎯",
+        "roles": [("원거리 딜러", "#1a1a2e", "#e74c3c", "#e74c3c"), ("저격수", "#1a1a2e", "#2c3e50", "#ecf0f1")],
+        "lane": "바텀 (원딜)",
         "personality": (
-            "어딜 가든 분위기를 장악하고 모두를 웃게 만드는 타입 🎤 "
-            "현재 이 순간을 사랑하고, 즐기는 데 천재예요. "
-            "계획보다 감성이 앞서고, "
-            "솔직하고 유쾌한 에너지가 모두를 끌어당겨요. "
-            "함께하면 무조건 재밌어집니다! 🎉"
+            "어딜 가든 존재감이 폭발하는 타입이에요 ✨ "
+            "울트 하나로 분위기를 장악하고, cs도 잘 먹고, 빠른 공격속도로 딜도 쏙쏙. "
+            "게임 내내 채팅창에 '나이스!' '잘한다!' 를 흘리고 다녀요. "
+            "지는 게임도 '그래도 우리 열심히 했잖아요!' 로 마무리하는 국민 원딜이에요 🎉"
         ),
-        "traits": ["유쾌함", "즉흥적", "사교적", "현재집중", "에너지"],
-        "best": ("ISTJ", "⚓ 안정감을 주는 최고 조합"),
-        "worst": ("INTJ", "🔮 즉흥 vs 전략 충돌"),
-        "quote": "\"지금 이 순간이 제일 중요해! 즐기자고!\"",
+        "traits": ["유쾌함", "사교적", "에너지", "현재집중", "솔직함"],
+        "best": ("ISTJ", "⚓ 믿음직한 탱커가 나를 지켜줄 때 최고"),
+        "worst": ("INTJ", "🔮 진지한 분위기에서 나 좀 숨막혀요"),
+        "playstyle": "📌 라인전 지배형 — 강력한 사거리와 함정으로 상대를 제압",
+        "quote": "\"법은 내가 집행한다. 빠르고 정확하게.\"",
     },
-}
-
-TYPE_COLORS = {
-    "불꽃": ("#F08030", "#fff"),
-    "물": ("#6890F0", "#fff"),
-    "풀": ("#78C850", "#fff"),
-    "전기": ("#F8D030", "#333"),
-    "사이킥": ("#F85888", "#fff"),
-    "강철": ("#B8B8D0", "#333"),
-    "바위": ("#B8A038", "#fff"),
-    "노말": ("#A8A878", "#fff"),
-    "독": ("#A040A0", "#fff"),
-    "얼음": ("#98D8D8", "#333"),
-    "비행": ("#A890F0", "#fff"),
-    "격투": ("#C03028", "#fff"),
-    "요정": ("#EE99AC", "#333"),
-    "땅": ("#E0C068", "#333"),
 }
 
 MBTI_LIST = [
@@ -462,105 +540,132 @@ MBTI_LIST = [
     "ISTP", "ISFP", "ESTP", "ESFP",
 ]
 
-# ─── UI ────────────────────────────────────────────────────────────────────────
-st.markdown('<div class="hero-title">⚡ MBTI × POKÉMON ⚡</div>', unsafe_allow_html=True)
-st.markdown('<div class="hero-sub">당신의 MBTI에 꼭 맞는 포켓몬을 찾아드려요 🔍</div>', unsafe_allow_html=True)
+# ─── 헤더 ──────────────────────────────────────────────────────────────────────
+st.markdown("""
+<div class="hero-wrap">
+    <div class="hero-eyebrow">League of Legends × MBTI</div>
+    <div class="hero-title">당신의 MBTI<br>챔피언을 찾아드립니다</div>
+    <div class="hero-sub">16가지 유형, 16명의 챔피언 — 당신은 누구와 닮았을까요? 🎮</div>
+</div>
+<div class="gold-line"></div>
+""", unsafe_allow_html=True)
 
-col1, col2, col3 = st.columns([1, 2, 1])
-with col2:
+# ─── 선택 UI ───────────────────────────────────────────────────────────────────
+col_l, col_c, col_r = st.columns([1, 2, 1])
+with col_c:
     mbti = st.selectbox(
-        "✨ 나의 MBTI를 선택하세요",
+        "MBTI 유형 선택",
         options=[""] + MBTI_LIST,
-        format_func=lambda x: "선택하세요 👇" if x == "" else x,
+        format_func=lambda x: "▼  내 MBTI를 선택하세요" if x == "" else x,
     )
-    btn = st.button("🔍 나의 포켓몬 찾기!")
+    clicked = st.button("⚔️  나의 챔피언 소환하기")
 
-if btn:
+# ─── 결과 ──────────────────────────────────────────────────────────────────────
+if clicked:
     if not mbti:
         st.warning("⚠️ MBTI를 먼저 선택해주세요!")
     else:
-        # 풍선 효과 🎈
         st.balloons()
 
         d = MBTI_DATA[mbti]
 
-        # 결과 카드
+        # 코너 장식 + 카드
         st.markdown(f"""
-        <div class="result-card">
-            <div style="text-align:center; margin-bottom:1rem;">
-                <span style="background:rgba(255,215,0,0.18); color:#FFD700;
-                    font-family:'Press Start 2P',monospace; font-size:0.6rem;
-                    padding:0.4rem 1rem; border-radius:999px; letter-spacing:0.15em;">
-                    {mbti} 유형
-                </span>
+        <div class="result-wrap">
+            <div class="corner corner-tl"></div>
+            <div class="corner corner-tr"></div>
+            <div class="corner corner-bl"></div>
+            <div class="corner corner-br"></div>
+
+            <div style="text-align:center; margin-bottom:0.6rem;">
+                <span class="mbti-pill">{mbti}</span>
             </div>
-            <span class="pokemon-emoji">{d['emoji']}</span>
-            <div style="text-align:center; margin: 0.8rem 0 0.3rem;">
-                <span class="pokemon-name">{d['pokemon']}</span>
-            </div>
-            <div style="text-align:center; color:#a0c4ffbb; font-size:0.88rem; margin-bottom:1rem;">
-                {d['nickname']}
+
+            <span class="champ-icon">{d['icon']}</span>
+
+            <div style="text-align:center; margin-top:0.8rem;">
+                <div class="champ-name">{d['champion']}</div>
+                <div class="champ-title">{d['title']}</div>
             </div>
         """, unsafe_allow_html=True)
 
-        # 타입 뱃지
-        badge_html = '<div style="text-align:center; margin-bottom:0.5rem;">'
-        for tname, bg, fg in d["types"]:
-            badge_html += f'<span class="type-badge" style="background:{bg};color:{fg};">{tname}</span>'
+        # 역할 뱃지
+        badge_html = '<div style="text-align:center; margin-bottom:0.3rem;">'
+        for label, bg, border, color in d["roles"]:
+            badge_html += (
+                f'<span class="role-badge" '
+                f'style="background:rgba(0,0,0,0.35); '
+                f'border-color:{border}44; color:{color};">'
+                f'{label}</span>'
+            )
+        badge_html += f' &nbsp; <span style="color:#7a8fa6; font-size:0.82rem;">📍 {d["lane"]}</span>'
         badge_html += "</div>"
         st.markdown(badge_html, unsafe_allow_html=True)
 
-        st.markdown('<hr class="divider">', unsafe_allow_html=True)
+        st.markdown('<hr class="sep">', unsafe_allow_html=True)
 
-        # 성격 설명
+        # 성격 분석
         st.markdown(f"""
-            <div class="section-label">✦ 성격 분석</div>
-            <div class="desc-text">{d['personality']}</div>
+            <div class="section-eyebrow">✦ 성격 분석</div>
+            <div class="desc-body">{d['personality']}</div>
         """, unsafe_allow_html=True)
 
-        # 특성 칩
+        # 핵심 특성
         chips = "".join(f'<span class="trait-chip">{t}</span>' for t in d["traits"])
         st.markdown(f"""
-            <div class="section-label" style="margin-top:1.2rem;">✦ 핵심 특성</div>
+            <div class="section-eyebrow" style="margin-top:1.3rem;">✦ 핵심 특성</div>
             <div>{chips}</div>
         """, unsafe_allow_html=True)
 
-        st.markdown('<hr class="divider">', unsafe_allow_html=True)
+        # 플레이 스타일
+        st.markdown(f"""
+            <div class="section-eyebrow" style="margin-top:1.3rem;">✦ 플레이 스타일</div>
+            <div class="desc-body">{d['playstyle']}</div>
+        """, unsafe_allow_html=True)
+
+        st.markdown('<hr class="sep">', unsafe_allow_html=True)
 
         # 궁합
         best_mbti, best_desc = d["best"]
         worst_mbti, worst_desc = d["worst"]
         st.markdown(f"""
-            <div class="section-label">✦ 궁합</div>
-            <div class="compat-card" style="border-color:#2ecc71;">
-                💚 <strong style="color:#2ecc71;">최고 궁합</strong> &nbsp;
-                <span style="background:rgba(46,204,113,0.2); padding:0.1rem 0.5rem;
-                    border-radius:6px; font-weight:700; color:#2ecc71;">{best_mbti}</span>
-                &nbsp; {best_desc}
+            <div class="section-eyebrow">✦ 팀 궁합</div>
+            <div class="compat-row" style="border-color:#2ecc71;">
+                <span style="font-size:1.2rem;">💚</span>
+                <div>
+                    <strong style="color:#2ecc71;">최고 파트너</strong>
+                    &nbsp;
+                    <span style="background:rgba(46,204,113,0.15); color:#2ecc71;
+                        padding:0.1rem 0.6rem; border-radius:5px; font-weight:700;
+                        font-size:0.85rem;">{best_mbti}</span>
+                    <br><span style="font-size:0.88rem;">{best_desc}</span>
+                </div>
             </div>
-            <div class="compat-card" style="border-color:#e74c3c;">
-                ❤️‍🔥 <strong style="color:#e74c3c;">조심 궁합</strong> &nbsp;
-                <span style="background:rgba(231,76,60,0.2); padding:0.1rem 0.5rem;
-                    border-radius:6px; font-weight:700; color:#e74c3c;">{worst_mbti}</span>
-                &nbsp; {worst_desc}
+            <div class="compat-row" style="border-color:#e74c3c;">
+                <span style="font-size:1.2rem;">🔥</span>
+                <div>
+                    <strong style="color:#e74c3c;">주의 조합</strong>
+                    &nbsp;
+                    <span style="background:rgba(231,76,60,0.15); color:#e74c3c;
+                        padding:0.1rem 0.6rem; border-radius:5px; font-weight:700;
+                        font-size:0.85rem;">{worst_mbti}</span>
+                    <br><span style="font-size:0.88rem;">{worst_desc}</span>
+                </div>
             </div>
         """, unsafe_allow_html=True)
 
-        st.markdown('<hr class="divider">', unsafe_allow_html=True)
+        st.markdown('<hr class="sep">', unsafe_allow_html=True)
 
-        # 명언
+        # 챔피언 명언
         st.markdown(f"""
-            <div class="section-label">✦ {d['pokemon']}의 한마디</div>
-            <div style="text-align:center; color:#FFD700; font-size:1.05rem;
-                font-style:italic; line-height:1.8; padding: 0.5rem 0 1rem;">
-                {d['quote']}
-            </div>
+            <div class="section-eyebrow">✦ {d['champion']}의 한마디</div>
+            <div class="quote-block">{d['quote']}</div>
         </div>
         """, unsafe_allow_html=True)
 
-        # 다시 하기 안내
+        # 안내
         st.markdown("""
-        <div style="text-align:center; color:#a0c4ff88; font-size:0.82rem; margin-top:1.5rem;">
-            다른 MBTI도 궁금하다면 위에서 다시 선택해보세요 🔄
+        <div style="text-align:center; color:#7a8fa6; font-size:0.8rem; margin-top:1.2rem;">
+            다른 MBTI 유형도 확인해보세요 🔄 &nbsp;|&nbsp; All is fair in the Rift ⚔️
         </div>
         """, unsafe_allow_html=True)
